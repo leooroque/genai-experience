@@ -1,0 +1,22 @@
+{
+  "name": "santander-experience-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-bedrock-agent": "^3.658.1",
+    "@aws-sdk/client-bedrock-agent-runtime": "^3.651.1",
+    "@aws-sdk/client-bedrock-runtime": "^3.651.1",
+    "@aws-sdk/credential-provider-ini": "^3.651.1",
+    "aws-sdk": "^2.1687.0",
+    "consign": "^0.1.6",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "winston": "^3.14.2"
+  }
+}
