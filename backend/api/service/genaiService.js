@@ -8,12 +8,11 @@ const _getVariable = require('../factory/getEnvironmentVariables')();
 
 
 const bedrockAgentRuntime = new BedrockAgentRuntimeClient({
-    region: 'us-east-1',    credentials: fromIni({ profile: "GenAIAccount" })
-
+    region: 'us-east-1'
 });
 
 const bedrockRuntime = new BedrockRuntimeClient({
-    region: 'us-east-1',    credentials: fromIni({ profile: "GenAIAccount" })
+    region: 'us-east-1'
 });
 
 const _api = 'ServiceLayer';
