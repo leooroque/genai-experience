@@ -84,8 +84,12 @@ module.exports = genaiService = () => {
 
     genaiService.linkedIn = async (req, callback) => {
         let _functionName = "linkedIn";
+        var prompt;
         try {
             let prompt = await _prompt.getBedrockPrompt({promptIdentifier:_getVariable.getVariable('promptIdentifierId'),promptVersion:_getVariable.getVariable('promptVersion')},req.body.content);
+            if (!prompt){
+                prompt = await _prompt.getDefaultPrompt(req.body.content);
+            }
             _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`, api:_api, functionName:_functionName});
             let agentResponse = await genaiService.callAgents(_getVariable.getVariable('linkedInAgentId'),_getVariable.getVariable('linkedInAliasId'), req.body.content.session , prompt)    
             callback(undefined, _response.successResponse(agentResponse, _api, _functionName));
