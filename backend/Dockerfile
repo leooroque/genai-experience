@@ -22,6 +22,10 @@ ENV chatFlowInAgentId='YOUR-chatFlowInAgentId'
 
 ENV chatFlowInAliasId='YOUR-chatFlowInAliasId'
 
+ENV chatGuardrailAgentId='YOUR-chatGuardrailAgentId'
+
+ENV chatGuardrailVersion='YOUR-chatGuardrailVersion'
+
 COPY package*.json ./
 
 RUN npm install
