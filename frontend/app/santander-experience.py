@@ -42,7 +42,7 @@ def main():
         col1, col2 = st.columns(2)
 
         with col1:
-            st.subheader("Lecture Summary")
+            st.subheader("Lecture Summary - Powered by Bedrock Agents and Knowledge Base")
             lectures = get_lectures()
             selected_lecture = st.selectbox("Select a lecture", lectures)
 
@@ -57,8 +57,8 @@ def main():
                 st.write(st.session_state.lecture_summary)
 
         with col2:
-            st.subheader("Chatbot")
-            prompt = st.text_input("What is your question?")
+            st.subheader("Chatbot - Powered by Bedrock Flows and Guardrails")
+            prompt = st.text_input("What is your question? (The answer will be done in a didactic way, as if it were for a 10 year old child.)")
             if st.button("Ask your question", key="ask_button"):
                 if prompt:
                     with st.spinner("Thinking..."):
@@ -69,7 +69,7 @@ def main():
                     st.warning("Please enter a question.")
 
     with tab2:
-        st.header("Agenda creation")
+        st.header("Agenda creation - Powered by Bedrock Agents and Actions Group")
         name = st.text_input("Name")
         role = st.text_input("Role")
         interests = st.multiselect("Interests", ["GenAI", "Developer", "Architecture", "Resilience", "Database", "Culture", "Infrastructure"])
@@ -92,7 +92,7 @@ def main():
                 st.warning("Please fill in all fields.")
 
     with tab3:
-        st.header("LinkedIn Post Creation")
+        st.header("LinkedIn Post Creation - Powered by Bedrock Agents and Prompt Management")
         lectures = get_lectures()
         selected_lectures = st.multiselect("Select lectures for the post", lectures)
 
