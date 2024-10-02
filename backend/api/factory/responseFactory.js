@@ -19,7 +19,7 @@ module.exports = genAIExperienceResponse = () =>{
             status: status,
             stack: (!!content.message) ? content.message : content
         }
-        _genAIExperienceLog.generateErrorLog({message: err.message,api: api, functionName: functionName})
+        _genAIExperienceLog.generateErrorLog({message: err.message,api: api, functionName: functionName, stack: err.stack})
         return err;
     }
     return genAIExperienceResponse;
