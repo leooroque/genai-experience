@@ -2,7 +2,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-ENV API_BASE_URL='YOUR_BASE_URL'
+ENV API_BASE_URL='http://santander-experience-backend-service'
 
 COPY requirements.txt .
 
