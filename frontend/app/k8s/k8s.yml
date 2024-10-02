@@ -6,7 +6,7 @@ metadata:
   labels:
     app: santander-experience-frontend
 spec:
-  replicas: 1
+  replicas: 30
   selector:
     matchLabels:
       app: santander-experience-frontend
