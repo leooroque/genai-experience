@@ -1,7 +1,7 @@
 const _log = require('../factory/logFactory')();
 const _response = require('../factory/responseFactory')();
 const _prompt = require('../factory/promptFactory')();
-const { BedrockRuntimeClient, InvokeModelCommand } = require("@aws-sdk/client-bedrock-runtime");
+const { BedrockRuntimeClient, InvokeModelCommand , ApplyGuardrailCommand } = require("@aws-sdk/client-bedrock-runtime");
 const { fromIni } = require("@aws-sdk/credential-provider-ini");
 const { BedrockAgentRuntimeClient, InvokeAgentCommand, InvokeFlowCommand } = require ("@aws-sdk/client-bedrock-agent-runtime");
 const _getVariable = require('../factory/getEnvironmentVariables')();
@@ -23,7 +23,13 @@ module.exports = genaiService = () => {
         let _functionName = "llmcall";
         try{
             _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`,api:_api,functionName:_functionName});
-            let awnser = await genaiService.callFlows(_getVariable.getVariable('chatFlowInAgentId'),_getVariable.getVariable('chatFlowInAliasId'),req.body.content)
+            let guardrail = await genaiService.callGuardrail(_getVariable.getVariable('chatGuardrailAgentId'),_getVariable.getVariable('chatGuardrailVersion'),req.body.content);
+            var awnser;
+            if(!guardrail){
+                 awnser = await genaiService.callFlows(_getVariable.getVariable('chatFlowInAgentId'),_getVariable.getVariable('chatFlowInAliasId'),req.body.content)
+            } else{
+                awnser = guardrail
+            }
             callback(undefined, _response.successResponse(awnser, _api, _functionName));
         } catch (err) {
             callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
@@ -184,6 +190,32 @@ module.exports = genaiService = () => {
                 }
             }
             return completion;
+        } catch (err){
+            throw new Error(err);
+        }
+    }
+
+    genaiService.callGuardrail = async (guardrailIdentifier,guardrailVersion,task) => {
+        let _functionName = "invokellm";
+        try{
+            _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`,api:_api,functionName:_functionName});
+            let command = new ApplyGuardrailCommand({
+                guardrailIdentifier: guardrailIdentifier,
+                guardrailVersion: guardrailVersion,
+                source: "INPUT" || "OUTPUT" ,
+                content: [
+                    {
+                    text: {
+                        text: task, 
+                    }
+                    }
+                ]
+            });
+            let responseBody = await bedrockRuntime.send(command);
+            if(responseBody.outputs.length > 0) {
+                return responseBody.outputs[0].text;
+            }
+            return undefined;
         } catch (err){
             throw new Error(err);
         }
