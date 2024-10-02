@@ -7,7 +7,7 @@ import os
 def call_api(endpoint, method='GET', data=None):
     base_url = os.environ.get('API_BASE_URL', 'http://localhost:3000')
     url = f"{base_url}/api/genai/{endpoint}"
-
+    
     try:
         if method == 'GET':
             response = requests.get(url)
@@ -35,19 +35,19 @@ def main():
     if 'lecture_summary' not in st.session_state:
         st.session_state.lecture_summary = ""
 
-    tab1, tab2, tab3 = st.tabs(["Understanding better the lectures 📚", "Agenda creation", "LinkedIn Post Creation"])
+    tab1, tab2, tab3 = st.tabs(["Entendendo melhor as palestras 📚", "Criação de agenda", "Exemplos de posts para usar no LinkedIn"])
 
     with tab1:
-        st.header("Understanding better the lectures")
+        st.header("Entendendo melhor as palestras")
         col1, col2 = st.columns(2)
 
         with col1:
-            st.subheader("Lecture Summary - Powered by Bedrock Agents and Knowledge Base")
+            st.subheader("Resumir palestras - Bedrock Agents e KB")
             lectures = get_lectures()
-            selected_lecture = st.selectbox("Select a lecture", lectures)
+            selected_lecture = st.selectbox("Selecione uma palestra", lectures)
 
-            if st.button("Get Summary", key="summary_button"):
-                with st.spinner("Loading summary..."):
+            if st.button("Obter resumo", key="summary_button"):
+                with st.spinner("Resumindo..."):
                     response = call_api('presentationResume', method='POST', data={"presentation": selected_lecture, "session": random.randint(1, 10000)})
                     if response and response['success']:
                         st.session_state.lecture_summary = response['content']
@@ -57,26 +57,30 @@ def main():
                 st.write(st.session_state.lecture_summary)
 
         with col2:
-            st.subheader("Chatbot - Powered by Bedrock Flows and Guardrails")
-            prompt = st.text_input("What is your question? (The answer will be done in a didactic way, as if it were for a 10 year old child.)")
-            if st.button("Ask your question", key="ask_button"):
+            st.subheader("Chatbot - Bedrock Flows e Guardrails")
+            with st.expander("Perguntas de exemplo"):
+                st.write("O que o Werner Vogel fala sobre falhas sistêmicas?")
+                st.write("Como instrumentar uma aplicação com ADOT?")
+                st.write("O que é melhor ECS ou EKS? - Pergunta barrada no Guardrail (por contexto)")
+            prompt = st.text_input("Qual é a sua pergunta? (A resposta será feita de forma didática, como se fosse para uma criança de 10 anos.)")
+            if st.button("Faça sua pergunta", key="ask_button"):
                 if prompt:
-                    with st.spinner("Thinking..."):
+                    with st.spinner("Pensando..."):
                         response = call_api('llm', method='POST', data={"content": prompt})
                     if response and response['success']:
                         st.write(response['content'])
                 else:
-                    st.warning("Please enter a question.")
+                    st.warning("Por favor inclua uma pergunta.")
 
     with tab2:
-        st.header("Agenda creation - Powered by Bedrock Agents and Actions Group")
-        name = st.text_input("Name")
-        role = st.text_input("Role")
-        interests = st.multiselect("Interests", ["GenAI", "Developer", "Architecture", "Resilience", "Database", "Culture", "Infrastructure"])
+        st.header("Criação de agenda - Bedrock Agents e Actions Group")
+        name = st.text_input("Nome")
+        role = st.text_input("Qual sua função? (Desenvolvedor, Arquiteto, etc.)")
+        interests = st.multiselect("Quais temas você tem mais interesse?", ["Generative AI", "Desenvolvimento", "Arquitetura", "Resiliência", "Database", "Cultura", "Infraestrutura"])
 
         if st.button("Create Agenda"):
             if name and role and interests:
-                with st.spinner("Creating agenda..."):
+                with st.spinner("Criando agenda..."):
                     data = {
                         "content": {
                             "name": name,
@@ -89,19 +93,19 @@ def main():
                     if response and response['success']:
                         st.write(response['content'])
             else:
-                st.warning("Please fill in all fields.")
+                st.warning("Por favor preencha os campos.")
 
     with tab3:
-        st.header("LinkedIn Post Creation - Powered by Bedrock Agents and Prompt Management")
+        st.header("Exemplos de posts para usar no LinkedIn -  Bedrock Agents e Prompt Management")
         lectures = get_lectures()
-        selected_lectures = st.multiselect("Select lectures for the post", lectures)
+        selected_lectures = st.multiselect("Selecione as palestras que você participou para criar um exemplo de post para o LinkedIn", lectures)
 
         # Add checkbox for formal/informal tone
-        is_formal = st.checkbox("Formal tone", value=True, help="Check for formal tone, uncheck for informal tone")
+        is_formal = st.checkbox("Linguagem formal", value=True, help="Marque para manter uma linguagem formal, desmarque para uma linguagem informal")
 
-        if st.button("Create LinkedIn Post"):
+        if st.button("Criar exemplo de post"):
             if selected_lectures:  # Check if any lectures are selected
-                with st.spinner("Creating post..."):
+                with st.spinner("Criando post..."):
                     data = {
                         "content": {
                             "lectures": selected_lectures,
@@ -115,7 +119,7 @@ def main():
                     if response and response['success']:
                         st.write(response['content'])
             else:
-                st.warning("Please select at least one lecture before creating a post.")
+                st.warning("Por favor selecione pelo menos 1 sessão.")
 
 if __name__ == "__main__":
     main()
