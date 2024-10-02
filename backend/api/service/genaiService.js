@@ -2,18 +2,18 @@ const _log = require('../factory/logFactory')();
 const _response = require('../factory/responseFactory')();
 const _prompt = require('../factory/promptFactory')();
 const { BedrockRuntimeClient, InvokeModelCommand } = require("@aws-sdk/client-bedrock-runtime");
-//const { fromIni } = require("@aws-sdk/credential-provider-ini");
-const { BedrockAgentRuntimeClient, InvokeAgentCommand } = require ("@aws-sdk/client-bedrock-agent-runtime");
+const { fromIni } = require("@aws-sdk/credential-provider-ini");
+const { BedrockAgentRuntimeClient, InvokeAgentCommand, InvokeFlowCommand } = require ("@aws-sdk/client-bedrock-agent-runtime");
 const _getVariable = require('../factory/getEnvironmentVariables')();
 
 
 const bedrockAgentRuntime = new BedrockAgentRuntimeClient({
-    region: 'us-east-1',
+    region: 'us-east-1',    credentials: fromIni({ profile: "GenAIAccount" })
 
 });
 
 const bedrockRuntime = new BedrockRuntimeClient({
-    region: 'us-east-1',
+    region: 'us-east-1',    credentials: fromIni({ profile: "GenAIAccount" })
 });
 
 const _api = 'ServiceLayer';
@@ -22,10 +22,9 @@ module.exports = genaiService = () => {
     genaiService.llmcall = async (req,callback) => {
         let _functionName = "llmcall";
         try{
-            let params = _prompt.generatePromptToLLM(req.body.content);
             _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`,api:_api,functionName:_functionName});
-            let awnser = await genaiService.invokellm(params);
-            callback(undefined, _response.successResponse(awnser.content[0].text, _api, _functionName));
+            let awnser = await genaiService.callFlows(_getVariable.getVariable('chatFlowInAgentId'),_getVariable.getVariable('chatFlowInAliasId'),req.body.content)
+            callback(undefined, _response.successResponse(awnser, _api, _functionName));
         } catch (err) {
             callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
         }
@@ -157,6 +156,38 @@ module.exports = genaiService = () => {
     } catch (err) {
         throw new Error(err);
     }}
+
+    genaiService.callFlows = async (flowId,flowAliasId,task) => {
+        let _functionName = "callFlows";
+        try{
+            _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`,api:_api,functionName:_functionName});
+            let command = new InvokeFlowCommand({
+                flowIdentifier:flowId,
+                flowAliasIdentifier:flowAliasId,
+                inputs: [ 
+                    { 
+                      nodeName: "FlowInputNode", 
+                      nodeOutputName: "document", 
+                      content: { 
+                        document: task,
+                      },
+                    },
+                  ]
+            });
+            let responseBody = await bedrockAgentRuntime.send(command);
+            let completion = "";
+            for await (const event of responseBody.responseStream) {
+                
+                if (event.flowOutputEvent) {
+                    completion = event.flowOutputEvent.content.document;
+                    break; // Assuming we only need the first flowOutputEvent
+                }
+            }
+            return completion;
+        } catch (err){
+            throw new Error(err);
+        }
+    }
 
     return genaiService;
 }

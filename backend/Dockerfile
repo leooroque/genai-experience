@@ -18,6 +18,9 @@ ENV linkedInAgentId='YOUR-linkedInAgentId'
 
 ENV linkedInAliasId='YOUR-linkedInAliasId'
 
+ENV chatFlowInAgentId='YOUR-chatFlowInAgentId'
+
+ENV chatFlowInAliasId='YOUR-chatFlowInAliasId'
 
 COPY package*.json ./
 

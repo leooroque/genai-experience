@@ -10,7 +10,8 @@ module.exports = function () {
     application.use(bodyParser.urlencoded({extended:true}));
     application.use(cors());
     
-    load ({cwd: '../backend/api'})
+  //load ({cwd: '../genai-experience/backend/api'}) // for debug
+    load ({cwd: '../backend/api'}) // for production
     .include('routes')
     .include('controller')
     .include('factory')
