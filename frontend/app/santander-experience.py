@@ -28,8 +28,8 @@ def get_lectures():
 
 # Main app
 def main():
-    st.set_page_config(page_title="Santander Experience", layout="wide")
-    st.title("Santander Experience")
+    st.set_page_config(page_title="Santander AWS Experience", layout="wide")
+    st.title("Santander AWS Experience")
 
     # Initialize session state
     if 'lecture_summary' not in st.session_state:
