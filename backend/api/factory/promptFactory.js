@@ -45,7 +45,7 @@ module.exports = genAIExperiencePrompt = () =>{
         try{
              prompt =   `Gere um post do LinkedIn de utilizando uma linguagem ${variables.tone}. O post deve ter a seguinte estrutura. 
             Topicos: ${variables.lectures}
-            Incluir hashtags do post considerando as seguintes hashtags #Santander #F1RST #AWS e #GenaI #SantanderExperience e inclua uma hashtag relaciona com os ${variables.lectures} abordados. 
+            Incluir hashtags do post considerando as seguintes hashtags #Santander #F1RST #AWS e #GenaI #SantanderAWSExperience e inclua uma hashtag relaciona com os ${variables.lectures} abordados. 
             Retorne apenas os detalhes do post sem nenhum comentário adicional
             Sempre crie posts em portugues.
             Independente do tipo da linguagem escolhida seja sempre educado, não considere palavrões ou xingamentos, não faça comparações com outras intituições.
