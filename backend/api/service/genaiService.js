@@ -3,16 +3,17 @@ const _response = require('../factory/responseFactory')();
 const _prompt = require('../factory/promptFactory')();
 const { BedrockRuntimeClient, InvokeModelCommand , ApplyGuardrailCommand } = require("@aws-sdk/client-bedrock-runtime");
 const { fromIni } = require("@aws-sdk/credential-provider-ini");
-const { BedrockAgentRuntimeClient, InvokeAgentCommand, InvokeFlowCommand } = require ("@aws-sdk/client-bedrock-agent-runtime");
+const { BedrockAgentRuntimeClient, InvokeAgentCommand, InvokeFlowCommand, RetrieveCommand } = require ("@aws-sdk/client-bedrock-agent-runtime");
 const _getVariable = require('../factory/getEnvironmentVariables')();
+const _cvDetails = require('../factory/cvDetails')();
 
 
 const bedrockAgentRuntime = new BedrockAgentRuntimeClient({
-    region: 'us-east-1'
+    //region: 'us-east-1',credentials: fromIni({ profile: "" })
 });
 
 const bedrockRuntime = new BedrockRuntimeClient({
-    region: 'us-east-1'
+//    region: 'us-east-1',credentials: fromIni({ profile: "" })
 });
 
 const _api = 'ServiceLayer';
@@ -219,6 +220,102 @@ module.exports = genaiService = () => {
             return undefined;
         } catch (err){
             throw new Error(err);
+        }
+    }
+
+
+    genaiService.llmcallv2 = async (req,callback) => {
+        let _functionName = "llmcall";
+        try{
+            _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`,api:_api,functionName:_functionName});
+            let prompt = _prompt.generatePromptToLLM(req.body.content)
+            let awnser = await genaiService.invokellm(prompt);
+            callback(undefined, _response.successResponse(awnser, _api, _functionName));
+        } catch (err) {
+            callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
+        }
+    }
+
+    genaiService.checkCV =  async (req,callback) => {
+        let _functionName = "checkCV";
+        try {
+                _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`,api:_api,functionName:_functionName});
+                let task;
+                if (req.body.content.cv){
+                    task = `curriculo: ${req.body.content.cv}`  
+                } else {
+                    task = `curriculo: Sem informações do candidato`
+                }
+                let agentResponse = await genaiService.callAgents(_getVariable.getVariable('checkCVId'),_getVariable.getVariable('checkCVAliasId'), req.body.content.session , task)                    
+                callback(undefined,_response.successResponse(agentResponse,_api,_functionName));
+          } catch (err) {
+            callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
+          }
+    }
+
+    genaiService.getsubjects = (req, callback) => {
+        let _functionName = "getsubjects";
+        try {
+            _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`, api:_api, functionName:_functionName});
+            let lectures = {"topics": [
+                {"name": "Utilização de Generative AI para análise de vagas e perfis"},
+                {"name":"Utilização de Generative AI para criação de sumarização de textos"}, {"name":"Utilização de Generative AI para aumento de eficiência"},
+                {"name":"Detalhar como Generative AI pode ser importante para a área de Recursos Humanos"}
+                ]}
+                callback(undefined, _response.successResponse(lectures, _api, _functionName));
+        } catch (error) {
+            _log.generateErrorLog({
+                message: `Erro durante o processo da funcao ${_functionName}`,
+                api: _api,
+                functionName: _functionName,
+                error: error
+            });
+
+            callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
+        }  
+    }
+
+    genaiService.linkedInRH = async (req, callback) => {
+        let _functionName = "linkedInRH";
+        var prompt;
+        try {
+                prompt = await _prompt.getDefaultPromptRH(req.body.content);
+            _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`, api:_api, functionName:_functionName});
+            let promptToCallModel = _prompt.generatePromptToLLM(prompt)
+            let awnser = await genaiService.invokellm(promptToCallModel);
+            callback(undefined, _response.successResponse(awnser, _api, _functionName));
+        } catch (err) {
+            callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
+        }
+    }
+
+    genaiService.getCVDEtails = async (req, callback) => {
+        let _functionName = "getCVDEtails";
+        try {
+            _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`, api:_api, functionName:_functionName});
+            let cv = _cvDetails.getCVs(req.body.content)
+            callback(undefined, _response.successResponse(cv, _api, _functionName));
+        } catch (err) {
+            callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
+        }
+    }
+
+    genaiService.llmcallrh = async (req,callback) => {
+        let _functionName = "llmcall";
+        try{
+            _log.generateInfoLog({message:`Inicio do processo da funcao ${_functionName}`,api:_api,functionName:_functionName});
+            let guardrail = await genaiService.callGuardrail(_getVariable.getVariable('chatGuardrailAgentId'),_getVariable.getVariable('chatGuardrailVersion'),req.body.content);
+            var awnser;
+            if(!guardrail){
+                 //awnser = await genaiService.callFlows(_getVariable.getVariable('chatFlowInAgentId'),_getVariable.getVariable('chatFlowInAliasId'),req.body.content)
+                 let promptToCallModel = _prompt.generatePromptToLLM(`Sempre retorne o questionamento da forma mais didática possível como se fosse para uma criança de 10 anos. Seja o mais objetivo possível, pergunta: ${req.body.content} Nunca informe na resposta que você está explicando como se fosse para uma criança.`)
+                  awnser = await genaiService.invokellm(promptToCallModel);
+            } else{
+                awnser = guardrail
+            }
+            callback(undefined, _response.successResponse(awnser, _api, _functionName));
+        } catch (err) {
+            callback(_response.errorResponse(err, 500, _api, _functionName), undefined);
         }
     }
 

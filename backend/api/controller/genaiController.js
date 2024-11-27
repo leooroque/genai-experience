@@ -12,6 +12,26 @@ module.exports = genAIController = () => {
         });
     };
 
+    genAIController.llmcallv2 = (req,resp) => {
+        _genAIService.llmcallv2(req,(err,data) =>{
+            if(!!err){
+                resp.json(err);
+            } else{
+                resp.json(data);
+            }
+        });
+    };
+
+    genAIController.llmcallrh = (req,resp) => {
+        _genAIService.llmcallrh(req,(err,data) =>{
+            if(!!err){
+                resp.json(err);
+            } else{
+                resp.json(data);
+            }
+        });
+    };
+
     genAIController.getlectures = (req,resp) => {
         _genAIService.getlectures(req,(err,data) =>{
             if(!!err){
@@ -52,6 +72,45 @@ module.exports = genAIController = () => {
         });
     };
 
+    genAIController.checkCV = (req,resp) => {
+        _genAIService.checkCV(req,(err,data) =>{
+            if(!!err){
+                resp.json(err);
+            } else{
+                resp.json(data);
+            }
+        });
+    };
+
+    genAIController.getsubjects = (req,resp) => {
+        _genAIService.getsubjects(req,(err,data) =>{
+            if(!!err){
+                resp.json(err);
+            } else{
+                resp.json(data);
+            }
+        });
+    };
+
+    genAIController.linkedInRH = (req,resp) => {
+        _genAIService.linkedInRH(req,(err,data) =>{
+            if(!!err){
+                resp.json(err);
+            } else{
+                resp.json(data);
+            }
+        });
+    };
+
+    genAIController.getCVDEtails = (req,resp) => {
+        _genAIService.getCVDEtails(req,(err,data) =>{
+            if(!!err){
+                resp.json(err);
+            } else{
+                resp.json(data);
+            }
+        });
+    };
 
     return genAIController;
 }

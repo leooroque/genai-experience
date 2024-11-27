@@ -9,7 +9,7 @@ module.exports = genAIExperiencePrompt = () =>{
     genAIExperiencePrompt.generatePromptToLLM = (prompt) => {
   
         const params = {
-            modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+            modelId: "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
             contentType: "application/json",
             accept: "application/json",
             body: JSON.stringify({
@@ -50,6 +50,16 @@ module.exports = genAIExperiencePrompt = () =>{
             Sempre crie posts em portugues.
             Independente do tipo da linguagem escolhida seja sempre educado, não considere palavrões ou xingamentos, não faça comparações com outras intituições.
             Não utilize tags XMLs nos posts.`
+            return prompt;
+        } catch(err){
+            throw new Error(err)
+        }   
+    }
+
+    genAIExperiencePrompt.getDefaultPromptRH =  (variables) => {
+        var prompt;
+        try{
+             prompt =   `Gere um post do LinkedIn de utilizando uma linguagem ${variables.tone}. O post deve ter a seguinte estrutura. Criação de um breve resumo de no máximo 100 caractetres do conteúdo recebido: ${variables.topics} Incluir hashtags do post considerando as seguintes hashtags #Santander #F1RST #AWS e #GenaI #TalentAcquisitionAwards2024 e inclua uma hashtag relaciona com os ${variables.topics} abordados. Faça o post em uma linguagem de profssional de RH que não tem domínio sobre tecnologia, os exemplos precisam ser relacionados ao mundo de RH. Inclua ao final do post a seguinte frase: Post by Amazon Bedrock. Retorne apenas os detalhes do post sem nenhum comentário adicional Sempre crie posts em portugues. Independente do tipo da linguagem escolhida seja sempre educado, não considere palavrões ou xingamentos, não faça comparações com outras intituições. Não utilize tags XMLs nos posts. Nunca utilize a palavra chatGPT, Microsoft ou openAI.`
             return prompt;
         } catch(err){
             throw new Error(err)
